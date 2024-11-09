@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from users.models import User
-from users.serializers import UserSerializer
-from users.validators import validate_password_strength
+from user.models import User
+from user.serializers import UserSerializer
+from user.validators import validate_password_strength
 from django.core.exceptions import ValidationError
 
 class UserViewSet(viewsets.ViewSet):

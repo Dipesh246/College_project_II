@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import User
+from user.models import User
 from django.contrib.auth.password_validation import validate_password
 from .validators import validate_password_strength
 from django.core.exceptions import ValidationError
