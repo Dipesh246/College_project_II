@@ -28,9 +28,12 @@ SECRET_KEY = 'django-insecure-%@9r0^b-o*ke-j5x_(!6@obr99(szw-9*ba+dhcgj9l*5f4ixl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1',]
+ALLOWED_HOSTS = ['192.168.1.71']
+# ALLOWED_HOSTS = ['127.0.0.1']
 
-
+GDAL_LIBRARY_PATH = 'C:/Program Files/GDAL/gdal.dll'
+GEOS_LIBRARY_PATH = 'C:/Program Files/GDAL/geos_c.dll'
+PROJ_LIB = "C:/Program Files/GDAL/proj"
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +47,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'user',
     'drf_spectacular',
+    'django.contrib.gis',
+    'responder',
 ]
 
 MIDDLEWARE = [
@@ -83,7 +88,7 @@ ASGI_APPLICATION = "EMS.asgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": env("DB_NAME"),
         "USER": env("DB_USER"),
         "PASSWORD": env("DB_PASSWORD"),

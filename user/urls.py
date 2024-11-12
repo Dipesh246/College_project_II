@@ -7,5 +7,5 @@ router = DefaultRouter(trailing_slash=False)
 router.register('user', UserViewSet, basename="user")
 
 urlpatterns = [
-    
-]+ router.urls
+    path('', include(router.urls)),
+]

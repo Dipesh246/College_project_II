@@ -5,7 +5,7 @@ def validate_password_strength(password):
     """
     Validate password strength with custom rules
     """
-    if len(password) < 8:
+    if len(password) < 6:
         raise ValidationError('Password must be at least 8 characters long.')
     
     if not re.search(r'[A-Z]', password):
