@@ -14,14 +14,15 @@ from .serializers import (
     ResponderPatchSerializer,
     ResponseGetSerializer,
     EmergencyRequestSerializer,
-    EmergencyRequestCreateSerializer
+    EmergencyRequestCreateSerializer,
+    EmergencyRequestUpdateSerializer,
 )
 from django.db import transaction
 
 class ResponderViewSet(viewsets.ModelViewSet):
     queryset = Responder.objects.all()
     serializer_class = ResponseGetSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         serializer_class = ResponseGetSerializer
@@ -41,6 +42,7 @@ class ResponderViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
+    
 
 class EmergencyRequestViewSet(viewsets.ModelViewSet):
     queryset = EmergencyRequest.objects.all()
@@ -54,8 +56,8 @@ class EmergencyRequestViewSet(viewsets.ModelViewSet):
             return EmergencyRequestSerializer
         elif self.request.method == 'POST':
             return EmergencyRequestCreateSerializer
-        # elif self.request.method == 'PATCH':
-        #     return EmergencyRequestPatchSerializer
+        elif self.request.method == 'PATCH':
+            return EmergencyRequestUpdateSerializer
         return EmergencyRequestSerializer
 
     @transaction.atomic
@@ -66,22 +68,9 @@ class EmergencyRequestViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @action(detail=False, methods=['get'], url_path='pending-requests')
-    def pending_requests(self, request):
-    
-        pending_requests = EmergencyRequest.objects.filter(status='PENDING')
-        serializer = self.get_serializer(pending_requests, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @transaction.atomic
     @action(detail=True, methods=['patch'], url_path='assign')
     def assign_request(self, request, pk=None):
-        """
-        Allows a responder to assign themselves to an emergency request.
-        """
-        if not request.user.is_authenticated:
-            return Response({"error": "User not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
-
         try:
             emergency_request = EmergencyRequest.objects.get(pk=pk, status='PENDING')
             responder = Responder.objects.get(user=request.user)

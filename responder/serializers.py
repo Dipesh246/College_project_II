@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 from rest_framework import serializers
 from django.contrib.gis.geos import Point
 from .models import Responder, EmergencyRequest
@@ -35,9 +36,24 @@ class ResponderPatchSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 class ResponseGetSerializer(serializers.ModelSerializer):
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+
     class Meta:
         model = Responder
-        fields = '__all__'
+        fields = ['id','latitude', 'longitude']  # Include any other relevant fields
+
+    def get_latitude(self, obj):
+        # If location is a PointField
+        if isinstance(obj.current_location, Point):
+            return obj.current_location.y  # Latitude is stored in the 'y' attribute of PointField
+        return None
+
+    def get_longitude(self, obj):
+        # If location is a PointField
+        if isinstance(obj.current_location, Point):
+            return obj.current_location.x  # Longitude is stored in the 'x' attribute of PointField
+        return None
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,10 +73,6 @@ class EmergencyRequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmergencyRequest
         fields = [
-            'customer', 
-            'status',
-            'assigned_responder', 
-            'created_at', 
             'latitude', 
             'longitude'
         ]
@@ -69,12 +81,10 @@ class EmergencyRequestCreateSerializer(serializers.ModelSerializer):
         latitude = validated_data.pop('latitude', None)
         longitude = validated_data.pop('longitude', None)
         user = self.context['request'].user
-
         if latitude and longitude:
             validated_data['request_location'] = Point(longitude, latitude)
 
         validated_data['customer'] = user
-
         return super().create(validated_data)        
 
 class EmergencyRequestSerializer(serializers.ModelSerializer):
@@ -85,4 +95,12 @@ class EmergencyRequestSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'customer', 'request_location', 'status',
             'assigned_responder', 'created_at',
+        ]
+
+class EmergencyRequestUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmergencyRequest
+        fields = [
+            'id',
+            'status',
         ]
