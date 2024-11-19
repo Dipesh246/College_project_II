@@ -18,6 +18,7 @@ from .serializers import (
     EmergencyRequestUpdateSerializer,
 )
 from django.db import transaction
+from responder.service import get_shortest_path
 
 class ResponderViewSet(viewsets.ModelViewSet):
     queryset = Responder.objects.all()
@@ -46,7 +47,7 @@ class ResponderViewSet(viewsets.ModelViewSet):
 
 class EmergencyRequestViewSet(viewsets.ModelViewSet):
     queryset = EmergencyRequest.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         """
@@ -82,3 +83,36 @@ class EmergencyRequestViewSet(viewsets.ModelViewSet):
             return Response({"error": "Emergency request not found or already assigned."}, status=status.HTTP_404_NOT_FOUND)
         except Responder.DoesNotExist:
             return Response({"error": "Responder not found."}, status=status.HTTP_404_NOT_FOUND)    
+    
+    @action(detail=False, methods=['get'], url_path="temporary-paths")
+    def temporary_path(self, request):
+        try:
+            lat = float(request.GET.get("latitude"))
+            lon = float(request.GET.get("longitude"))
+            customer_location = (lat, lon)
+
+            customer_pont = Point(lon, lat, srid=4326)
+            responders = Responder.objects.all()
+            paths=[]
+
+            for responder in responders:
+                responder_location = (responder.current_location.y, responder.current_location.x)
+                path_coords = get_shortest_path(customer_location, responder_location)
+                print(path_coords)
+                if path_coords:
+                    paths.append({
+                        "responder_id": responder.user.id,
+                        "username": responder.user.username,
+                        "coordinates": path_coords
+                    })
+            
+            return Response({"paths":paths}, status=status.HTTP_200_OK)
+        
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
