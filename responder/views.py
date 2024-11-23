@@ -36,8 +36,11 @@ class ResponderViewSet(viewsets.ModelViewSet):
         
         
         return serializer_class
+    
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        user = request.user
+        print(user)
         return super().create(request, *args, **kwargs)
     
     @transaction.atomic
@@ -84,30 +87,47 @@ class EmergencyRequestViewSet(viewsets.ModelViewSet):
         except Responder.DoesNotExist:
             return Response({"error": "Responder not found."}, status=status.HTTP_404_NOT_FOUND)    
     
-    @action(detail=False, methods=['get'], url_path="temporary-paths")
-    def temporary_path(self, request):
+    @action(detail=False, methods=['get'], url_path="nearest-responder-path")
+    def nearest_responder_path(self, request):
+        """
+        Return the path and details of the nearest responder to the customer.
+        """
         try:
             lat = float(request.GET.get("latitude"))
             lon = float(request.GET.get("longitude"))
             customer_location = (lat, lon)
 
-            customer_pont = Point(lon, lat, srid=4326)
             responders = Responder.objects.all()
-            paths=[]
+            nearest_responder = None
+            shortest_path = []
+            min_distance = float('inf')
 
+            # Iterate through responders and find the one with the shortest path
             for responder in responders:
                 responder_location = (responder.current_location.y, responder.current_location.x)
-                path_coords = get_shortest_path(customer_location, responder_location)
-                print(path_coords)
-                if path_coords:
-                    paths.append({
-                        "responder_id": responder.user.id,
-                        "username": responder.user.username,
-                        "coordinates": path_coords
-                    })
-            
-            return Response({"paths":paths}, status=status.HTTP_200_OK)
-        
+                path_coords, path_distance = get_shortest_path(customer_location, responder_location)
+
+                if path_distance < min_distance:
+                    nearest_responder = responder
+                    shortest_path = path_coords
+                    min_distance = path_distance
+
+            if not nearest_responder:
+                return Response({"error": "No responders available or reachable."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Return details of the nearest responder and the path
+            print({
+                "responder_id": nearest_responder.user.id,
+                "username": nearest_responder.user.username,
+                "path": shortest_path,
+                "distance": min_distance
+            })
+            return Response({
+                "responder_id": nearest_responder.user.id,
+                "username": nearest_responder.user.username,
+                "path": shortest_path,
+                "distance": min_distance
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
