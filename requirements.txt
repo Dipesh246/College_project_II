@@ -12,6 +12,9 @@ uvicorn[standard]==0.29.0
 channels==4.0.0
 daphne==4.0.0
 channels-redis==4.1.0
+osmnx==1.9.4
+networkx==3.3
+geopandas==0.14.4
 # Django
 # ------------------------------------------------------------------------------
 django==4.2
