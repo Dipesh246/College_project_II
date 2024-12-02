@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-%@9r0^b-o*ke-j5x_(!6@obr99(szw-9*ba+dhcgj9l*5f4ixl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.10.11.176']
+ALLOWED_HOSTS = ['52.23.74.123']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # GDAL_LIBRARY_PATH = 'C:/Program Files/GDAL/gdal.dll'
