@@ -28,12 +28,12 @@ SECRET_KEY = 'django-insecure-%@9r0^b-o*ke-j5x_(!6@obr99(szw-9*ba+dhcgj9l*5f4ixl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.78']
+ALLOWED_HOSTS = ['10.10.11.176']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
-GDAL_LIBRARY_PATH = 'C:/Program Files/GDAL/gdal.dll'
-GEOS_LIBRARY_PATH = 'C:/Program Files/GDAL/geos_c.dll'
-PROJ_LIB = "C:/Program Files/GDAL/proj"
+# GDAL_LIBRARY_PATH = 'C:/Program Files/GDAL/gdal.dll'
+# GEOS_LIBRARY_PATH = 'C:/Program Files/GDAL/geos_c.dll'
+# PROJ_LIB = "C:/Program Files/GDAL/proj"
 # Application definition
 
 INSTALLED_APPS = [
